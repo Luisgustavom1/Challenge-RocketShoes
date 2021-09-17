@@ -69,10 +69,16 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const removeProduct = (productId: number) => {
     try {
-      const cartRemoved = cart.filter(product => product.id !== productId);
+      const productExists = cart.find(product => product.id === productId)
+      if (productExists) {
+        const cartRemoved = cart.filter(product => product.id !== productId);
 
-      setCart(cartRemoved);
-      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cartRemoved))
+        setCart(cartRemoved);
+        localStorage.setItem('@RocketShoes:cart', JSON.stringify(cartRemoved));
+      } else {
+        toast.error('Erro na remoção do produto');
+      }
+
     } catch {
       toast.error('Erro na remoção do produto');
     }
@@ -89,7 +95,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       const currentAmount = await api.get(`/stock/${productId}`);
 
       if(amount > currentAmount.data.amount) {
-        return toast.error('Quantidade solicitada fora de estoque');
+        toast.error('Quantidade solicitada fora de estoque');
+        return;
       }
 
       if(product) {
