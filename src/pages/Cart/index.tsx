@@ -20,15 +20,17 @@ interface Product {
 const Cart = (): JSX.Element => {
   const { cart, removeProduct, updateProductAmount } = useCart();
 
-  // const cartFormatted = cart.map(product => ({
-  //   // TODO
-  // }))
-  // const total =
-  //   formatPrice(
-  //     cart.reduce((sumTotal, product) => {
-  //       // TODO
-  //     }, 0)
-  //   )
+  const cartFormatted = cart.map(product => ({
+    ...product,
+    priceFormatted: formatPrice(product.price), 
+    subTotal: formatPrice(product.price * product.amount)
+  }))
+  const total =
+    formatPrice(
+      cart.reduce((sumTotal, product) => {
+        return sumTotal += (product.price * product.amount)
+      }, 0)
+    )
 
   function handleProductIncrement(product: Product) {
     updateProductAmount({
@@ -45,7 +47,7 @@ const Cart = (): JSX.Element => {
   }
 
   function handleRemoveProduct(productId: number) {
-    // TODO
+    removeProduct(productId)
   }
 
   return (
@@ -61,7 +63,7 @@ const Cart = (): JSX.Element => {
           </tr>
         </thead>
         <tbody>
-          {cart.map(product => (
+          {cartFormatted.map(product => (
             <tr data-testid="product" key={product.id}>
               <td>
                 <img 
@@ -71,7 +73,7 @@ const Cart = (): JSX.Element => {
               </td>
               <td>
                 <strong>{product.title}</strong>
-                <span>{formatPrice(product.price)}</span>
+                <span>{product.priceFormatted}</span>
               </td>
               <td>
                 <div>
@@ -98,6 +100,18 @@ const Cart = (): JSX.Element => {
                   </button>
                 </div>
               </td>
+              <td>
+                <strong>{product.subTotal}</strong>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  data-testid="remove-product"
+                  onClick={() => handleRemoveProduct(product.id)}
+                >
+                  <MdDelete size={20} />
+                </button>
+            </td>
             </tr>
           ))}
         </tbody>
@@ -108,7 +122,7 @@ const Cart = (): JSX.Element => {
 
         <Total>
           <span>TOTAL</span>
-          <strong>R$ 359,80</strong>
+          <strong>{total}</strong>
         </Total>
       </footer>
     </Container>
